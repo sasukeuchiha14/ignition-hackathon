@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Box, Text } from '@react-three/drei';
-import * as THREE from 'three';
 import './GyroscopeViz.css';
 
 const SensorModel = ({ position, rotation, color, label }) => {
