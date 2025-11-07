@@ -46,6 +46,51 @@
   }
 }
 
+/* OpenStreetMap Dark Theme Customizations */
+.leaflet-container {
+  background-color: #1a1f3a !important;
+}
+
+.dark-tiles {
+  filter: invert(1) hue-rotate(180deg) brightness(0.8) contrast(1.2);
+}
+
+.leaflet-control-zoom {
+  background-color: rgba(20, 25, 45, 0.9) !important;
+  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  border-radius: 8px !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: rgba(102, 126, 234, 0.2) !important;
+  color: #e5e7eb !important;
+  border: none !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: rgba(102, 126, 234, 0.4) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background-color: rgba(20, 25, 45, 0.95) !important;
+  color: #e5e7eb !important;
+  border-radius: 8px !important;
+}
+
+.leaflet-popup-tip {
+  background-color: rgba(20, 25, 45, 0.95) !important;
+}
+
+.custom-marker {
+  z-index: 1000;
+}
+
+.no-gps-overlay {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
 @media (max-width: 480px) {
   .map-info {
     padding: 0.75rem;

@@ -2,20 +2,11 @@
 -- Created: November 2025
 
 -- =============================================
--- 1. ESP32 Leg Sensor Data (GPS + MPU6050)
+-- 1. ESP32 Leg Sensor Data (MPU6050 only)
 -- =============================================
 CREATE TABLE IF NOT EXISTS esp32_leg_data (
     id BIGSERIAL PRIMARY KEY,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
-    -- GPS Data from NEO-6M
-    latitude DOUBLE PRECISION,
-    longitude DOUBLE PRECISION,
-    altitude DOUBLE PRECISION,
-    speed DOUBLE PRECISION,
-    heading DOUBLE PRECISION,
-    accuracy DOUBLE PRECISION,
-    satellites INTEGER,
     
     -- MPU6050 Data
     accel_x DOUBLE PRECISION,
@@ -37,11 +28,20 @@ CREATE INDEX idx_esp32_leg_created ON esp32_leg_data(created_at DESC);
 
 
 -- =============================================
--- 2. ESP32 Chest Sensor Data (MPU6050 only)
+-- 2. ESP32 Chest Sensor Data (MPU6050 + GPS)
 -- =============================================
 CREATE TABLE IF NOT EXISTS esp32_chest_data (
     id BIGSERIAL PRIMARY KEY,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    -- GPS Data from NEO-6M (moved from leg to chest)
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
+    altitude DOUBLE PRECISION,
+    speed DOUBLE PRECISION,
+    heading DOUBLE PRECISION,
+    accuracy DOUBLE PRECISION,
+    satellites INTEGER,
     
     -- MPU6050 Data
     accel_x DOUBLE PRECISION,
@@ -60,6 +60,8 @@ CREATE TABLE IF NOT EXISTS esp32_chest_data (
 -- Index for timestamp queries
 CREATE INDEX idx_esp32_chest_timestamp ON esp32_chest_data(timestamp DESC);
 CREATE INDEX idx_esp32_chest_created ON esp32_chest_data(created_at DESC);
+CREATE INDEX idx_esp32_chest_gps_coords ON esp32_chest_data(latitude, longitude);
+CREATE INDEX idx_esp32_chest_timestamp_gps ON esp32_chest_data(timestamp DESC) WHERE latitude IS NOT NULL;
 
 
 -- =============================================
@@ -195,14 +197,16 @@ ON CONFLICT (setting_key) DO NOTHING;
 -- Latest sensor readings (for frontend)
 CREATE OR REPLACE VIEW latest_sensor_data AS
 SELECT 
-    l.timestamp,
-    l.latitude,
-    l.longitude,
-    l.altitude,
-    l.speed,
-    l.heading,
-    l.accuracy,
-    l.satellites,
+    COALESCE(c.timestamp, l.timestamp) as timestamp,
+    -- GPS data now comes from chest sensor
+    c.latitude,
+    c.longitude,
+    c.altitude,
+    c.speed,
+    c.heading,
+    c.accuracy,
+    c.satellites,
+    -- Leg sensor data (MPU6050 only)
     l.accel_x AS leg_accel_x,
     l.accel_y AS leg_accel_y,
     l.accel_z AS leg_accel_z,
@@ -210,6 +214,7 @@ SELECT
     l.gyro_y AS leg_gyro_y,
     l.gyro_z AS leg_gyro_z,
     l.temperature AS leg_temperature,
+    -- Chest sensor data (MPU6050 + GPS)
     c.accel_x AS chest_accel_x,
     c.accel_y AS chest_accel_y,
     c.accel_z AS chest_accel_z,
@@ -217,10 +222,10 @@ SELECT
     c.gyro_y AS chest_gyro_y,
     c.gyro_z AS chest_gyro_z,
     c.temperature AS chest_temperature
-FROM esp32_leg_data l
-FULL OUTER JOIN esp32_chest_data c 
-    ON ABS(EXTRACT(EPOCH FROM (l.timestamp - c.timestamp))) < 2
-ORDER BY GREATEST(l.timestamp, c.timestamp) DESC
+FROM esp32_chest_data c
+FULL OUTER JOIN esp32_leg_data l 
+    ON ABS(EXTRACT(EPOCH FROM (c.timestamp - l.timestamp))) < 3
+ORDER BY COALESCE(c.timestamp, l.timestamp) DESC
 LIMIT 1;
 
 
