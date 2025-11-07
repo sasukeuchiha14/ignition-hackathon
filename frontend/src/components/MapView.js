@@ -2,19 +2,22 @@ import React from 'react';
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
 import './MapView.css';
 
-const MapView = ({ legData }) => {
+const MapView = ({ legData, chestData }) => {
   const mapContainerStyle = {
     width: '100%',
     height: '400px',
     borderRadius: '12px'
   };
 
+  // GPS data is on chest sensor, fallback to leg if chest not available
+  const gpsData = chestData || legData || {};
+  
   const center = {
-    lat: legData?.latitude || 0,
-    lng: legData?.longitude || 0
+    lat: gpsData?.latitude || 0,
+    lng: gpsData?.longitude || 0
   };
 
-  const hasValidLocation = legData?.latitude && legData?.longitude;
+  const hasValidLocation = gpsData?.latitude && gpsData?.longitude;
 
   return (
     <div className="map-view">
@@ -68,38 +71,38 @@ const MapView = ({ legData }) => {
             <span className="info-label">📍 Location</span>
             <span className="info-value">
               {hasValidLocation 
-                ? `${legData.latitude.toFixed(6)}, ${legData.longitude.toFixed(6)}`
+                ? `${gpsData.latitude.toFixed(6)}, ${gpsData.longitude.toFixed(6)}`
                 : 'No GPS Fix'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">📏 Altitude</span>
             <span className="info-value">
-              {legData?.altitude ? `${legData.altitude.toFixed(1)} m` : 'N/A'}
+              {gpsData?.altitude ? `${gpsData.altitude.toFixed(1)} m` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">🚀 Speed</span>
             <span className="info-value">
-              {legData?.speed !== undefined ? `${legData.speed.toFixed(1)} km/h` : 'N/A'}
+              {gpsData?.speed !== undefined ? `${gpsData.speed.toFixed(1)} km/h` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">🧭 Heading</span>
             <span className="info-value">
-              {legData?.heading !== undefined ? `${legData.heading.toFixed(0)}°` : 'N/A'}
+              {gpsData?.heading !== undefined ? `${gpsData.heading.toFixed(0)}°` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">📡 Satellites</span>
             <span className="info-value">
-              {legData?.satellites || 0}
+              {gpsData?.satellites || 0}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">🎯 Accuracy</span>
             <span className="info-value">
-              {legData?.hdop ? `${legData.hdop.toFixed(2)} HDOP` : 'N/A'}
+              {gpsData?.hdop ? `${gpsData.hdop.toFixed(2)} HDOP` : 'N/A'}
             </span>
           </div>
         </div>

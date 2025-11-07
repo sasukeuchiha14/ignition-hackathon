@@ -116,6 +116,29 @@
   background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
 }
 
+/* Warning and Error Banners */
+.warning-banner,
+.error-banner {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  animation: pulse 2s infinite;
+}
+
+.warning-banner {
+  background: rgba(251, 191, 36, 0.2);
+  border: 2px solid #fbbf24;
+  color: #fbbf24;
+}
+
+.error-banner {
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid #ef4444;
+  color: #ef4444;
+}
+
 /* Sections */
 .map-section,
 .dashboard-section,

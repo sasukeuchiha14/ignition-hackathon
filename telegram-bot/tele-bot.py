@@ -176,13 +176,13 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         
         # Get latest sensor data
-        leg_data = supabase.table("esp32_leg_data")\
+        chest_data = supabase.table("esp32_chest_data")\
             .select("*")\
             .order("timestamp", desc=True)\
             .limit(1)\
             .execute()
         
-        chest_data = supabase.table("esp32_chest_data")\
+        leg_data = supabase.table("esp32_leg_data")\
             .select("*")\
             .order("timestamp", desc=True)\
             .limit(1)\
@@ -196,14 +196,14 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Build status message
         status_msg = "📊 *System Status*\n\n"
         
-        if leg_data.data:
-            leg = leg_data.data[0]
-            status_msg += f"📍 GPS: {leg.get('latitude', 'N/A')}, {leg.get('longitude', 'N/A')}\n"
-            status_msg += f"🏍️ Speed: {leg.get('speed', 0):.1f} km/h\n"
-            status_msg += f"🛰️ Satellites: {leg.get('satellites', 0)}\n"
-            status_msg += f"🎯 Accuracy: {leg.get('accuracy', 0):.1f}m\n"
+        if chest_data.data:
+            chest = chest_data.data[0]
+            status_msg += f"📍 GPS: {chest.get('latitude', 'N/A')}, {chest.get('longitude', 'N/A')}\n"
+            status_msg += f"🏍️ Speed: {chest.get('speed', 0):.1f} km/h\n"
+            status_msg += f"🛰️ Satellites: {chest.get('satellites', 0)}\n"
+            status_msg += f"🎯 Accuracy: {chest.get('accuracy', 0):.1f}m\n"
             
-            last_update = datetime.fromisoformat(leg['timestamp'].replace('Z', '+00:00'))
+            last_update = datetime.fromisoformat(chest['timestamp'].replace('Z', '+00:00'))
             time_diff = (datetime.now(last_update.tzinfo) - last_update).seconds
             status_msg += f"⏰ Last update: {time_diff}s ago\n"
         else:

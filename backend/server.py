@@ -48,6 +48,7 @@ def detect_activity_type(leg_data, chest_data):
     """
     Detect if rider is walking, on scooter, motorcycle, or stationary
     Based on posture difference between leg and chest sensors
+    GPS data comes from chest sensor
     """
     try:
         # Calculate posture difference (angle difference between sensors)
@@ -63,7 +64,7 @@ def detect_activity_type(leg_data, chest_data):
         )
         
         posture_diff = abs(leg_magnitude - chest_magnitude)
-        speed = leg_data.get('speed', 0)
+        speed = chest_data.get('speed', 0)  # GPS is on chest now
         
         # Detection logic
         if speed < 0.5:
@@ -126,9 +127,9 @@ def create_event(event_type, severity, leg_data, chest_data, description=""):
         event_data = {
             "event_type": event_type,
             "severity": severity,
-            "latitude": leg_data.get('latitude'),
-            "longitude": leg_data.get('longitude'),
-            "speed": leg_data.get('speed'),
+            "latitude": chest_data.get('latitude'),  # GPS is on chest now
+            "longitude": chest_data.get('longitude'),
+            "speed": chest_data.get('speed'),
             "leg_accel_x": leg_data.get('accel_x'),
             "leg_accel_y": leg_data.get('accel_y'),
             "leg_accel_z": leg_data.get('accel_z'),
@@ -221,16 +222,9 @@ def health_check():
 @app.route('/api/esp32-leg', methods=['POST'])
 def receive_leg_data():
     """
-    Receive data from ESP32 at leg (GPS + MPU6050)
+    Receive data from ESP32 at leg (MPU6050 only)
     Expected JSON:
     {
-        "latitude": 12.9716,
-        "longitude": 77.5946,
-        "altitude": 920.5,
-        "speed": 25.3,
-        "heading": 180.5,
-        "accuracy": 4.2,
-        "satellites": 8,
         "accel_x": 0.5,
         "accel_y": 0.2,
         "accel_z": 9.8,
@@ -253,7 +247,7 @@ def receive_leg_data():
         # Insert into database
         result = supabase.table("esp32_leg_data").insert(data).execute()
         
-        logger.info(f"Leg data received: GPS({data.get('latitude')}, {data.get('longitude')}), Speed: {data.get('speed')}")
+        logger.info(f"Leg data received: Accel({data.get('accel_x')}, {data.get('accel_y')}, {data.get('accel_z')})")
         
         return jsonify({
             "status": "success",
@@ -269,9 +263,16 @@ def receive_leg_data():
 @app.route('/api/esp32-chest', methods=['POST'])
 def receive_chest_data():
     """
-    Receive data from ESP32 at chest (MPU6050 only)
+    Receive data from ESP32 at chest (GPS + MPU6050)
     Expected JSON:
     {
+        "latitude": 12.9716,
+        "longitude": 77.5946,
+        "altitude": 920.5,
+        "speed": 25.3,
+        "heading": 180.5,
+        "accuracy": 4.2,
+        "satellites": 8,
         "accel_x": 0.3,
         "accel_y": 0.1,
         "accel_z": 9.7,
@@ -294,7 +295,7 @@ def receive_chest_data():
         # Insert into database
         result = supabase.table("esp32_chest_data").insert(data).execute()
         
-        logger.info(f"Chest data received: Accel({data.get('accel_x')}, {data.get('accel_y')}, {data.get('accel_z')})")
+        logger.info(f"Chest data received: GPS({data.get('latitude')}, {data.get('longitude')}), Speed: {data.get('speed')}")
         
         # Check for events (harsh brake, acceleration, fall detection)
         # Get latest leg data to compare

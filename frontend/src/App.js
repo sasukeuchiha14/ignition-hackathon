@@ -70,9 +70,29 @@ function App() {
           <span className="activity-text">{activityType}</span>
         </div>
 
+        {/* Connection Warnings */}
+        {sensorData && sensorData.leg_sensor && !sensorData.chest_sensor && (
+          <div className="warning-banner">
+            ⚠️ Only Leg Sensor connected - Limited data available
+          </div>
+        )}
+        {sensorData && !sensorData.leg_sensor && sensorData.chest_sensor && (
+          <div className="warning-banner">
+            ⚠️ Only Chest Sensor connected - GPS available from this sensor
+          </div>
+        )}
+        {sensorData && !sensorData.leg_sensor && !sensorData.chest_sensor && (
+          <div className="error-banner">
+            ❌ No sensors connected - Waiting for data...
+          </div>
+        )}
+
         {/* Map View */}
         <section className="map-section">
-          <MapView legData={sensorData?.leg_sensor} />
+          <MapView 
+            legData={sensorData?.leg_sensor} 
+            chestData={sensorData?.chest_sensor}
+          />
         </section>
 
         {/* Dashboard Cards */}

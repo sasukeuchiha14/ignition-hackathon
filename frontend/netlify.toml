@@ -1,0 +1,23 @@
+# Build settings
+[build]
+  command = "npm run build"
+  publish = "build"
+  
+# Redirects for SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (for reference - set these in Netlify dashboard)
+# REACT_APP_API_URL = https://oracle-apis.hardikgarg.me/ignition-hackathon
+# REACT_APP_GOOGLE_MAPS_API_KEY = your_google_maps_api_key
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
