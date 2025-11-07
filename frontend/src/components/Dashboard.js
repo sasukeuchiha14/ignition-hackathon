@@ -3,7 +3,7 @@ import './Dashboard.css';
 
 const Dashboard = ({ legData, chestData, activityType }) => {
   const formatValue = (value, decimals = 2) => {
-    return value !== undefined ? value.toFixed(decimals) : 'N/A';
+    return value !== undefined && value !== null ? value.toFixed(decimals) : 'N/A';
   };
 
   const getActivityColor = (type) => {
@@ -43,11 +43,11 @@ const Dashboard = ({ legData, chestData, activityType }) => {
           <div className="card-content">
             <div className="stat-row">
               <span className="stat-label">Speed:</span>
-              <span className="stat-value">{formatValue(legData?.speed, 1)} km/h</span>
+              <span className="stat-value">{formatValue(chestData?.speed, 1)} km/h</span>
             </div>
             <div className="stat-row">
               <span className="stat-label">Satellites:</span>
-              <span className="stat-value">{legData?.satellites || 0}</span>
+              <span className="stat-value">{chestData?.satellites || 0}</span>
             </div>
             <div className="stat-row">
               <span className="stat-label">HDOP:</span>

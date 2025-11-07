@@ -88,7 +88,7 @@ const MapView = ({ legData, chestData }) => {
                 <div style={{ color: '#333', fontWeight: 'bold' }}>
                   📍 Current Location<br />
                   <small>
-                    {center.lat.toFixed(6)}, {center.lng.toFixed(6)}
+                    {center.lat?.toFixed(6) || '0'}, {center.lng?.toFixed(6) || '0'}
                   </small>
                 </div>
               </Popup>
@@ -135,26 +135,26 @@ const MapView = ({ legData, chestData }) => {
             <span className="info-label">📍 Location</span>
             <span className="info-value">
               {hasValidLocation 
-                ? `${gpsData.latitude.toFixed(6)}, ${gpsData.longitude.toFixed(6)}`
+                ? `${gpsData.latitude?.toFixed(6) || '0'}, ${gpsData.longitude?.toFixed(6) || '0'}`
                 : 'No GPS Fix'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">📏 Altitude</span>
             <span className="info-value">
-              {gpsData?.altitude ? `${gpsData.altitude.toFixed(1)} m` : 'N/A'}
+              {gpsData?.altitude ? `${gpsData.altitude?.toFixed(1)} m` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">🚀 Speed</span>
             <span className="info-value">
-              {gpsData?.speed !== undefined ? `${gpsData.speed.toFixed(1)} km/h` : 'N/A'}
+              {gpsData?.speed !== undefined ? `${gpsData.speed?.toFixed(1)} km/h` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
             <span className="info-label">🧭 Heading</span>
             <span className="info-value">
-              {gpsData?.heading !== undefined ? `${gpsData.heading.toFixed(0)}°` : 'N/A'}
+              {gpsData?.heading !== undefined ? `${gpsData.heading?.toFixed(0)}°` : 'N/A'}
             </span>
           </div>
           <div className="info-card">
@@ -166,7 +166,8 @@ const MapView = ({ legData, chestData }) => {
           <div className="info-card">
             <span className="info-label">🎯 Accuracy</span>
             <span className="info-value">
-              {gpsData?.hdop ? `${gpsData.hdop.toFixed(2)} HDOP` : 'N/A'}
+              {gpsData?.hdop ? `${gpsData.hdop?.toFixed(2)} HDOP` : 
+               gpsData?.accuracy ? `${gpsData.accuracy?.toFixed(2)} HDOP` : 'N/A'}
             </span>
           </div>
         </div>
