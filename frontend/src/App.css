@@ -1,0 +1,204 @@
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+}
+
+.app-header {
+  background: rgba(20, 25, 45, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.header-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-dot.connected {
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.status-dot.disconnected {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.status-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Main Content */
+.app-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 5rem;
+}
+
+/* Activity Banner */
+.activity-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 12px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.activity-icon {
+  font-size: 1.5rem;
+}
+
+.activity-walking {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.activity-scooter {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.activity-motorcycle {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.activity-stationary {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.activity-unknown {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+}
+
+/* Sections */
+.map-section,
+.dashboard-section,
+.gyro-section,
+.events-section {
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #e5e7eb;
+}
+
+/* Telegram Link Button */
+.telegram-link-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 1.5rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+  transition: all 0.3s ease;
+  z-index: 50;
+}
+
+.telegram-link-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+}
+
+.telegram-link-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .app-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .header-status {
+    padding: 0.375rem 0.75rem;
+  }
+
+  .status-text {
+    font-size: 0.75rem;
+  }
+
+  .activity-banner {
+    font-size: 1rem;
+    padding: 0.875rem;
+  }
+
+  .activity-icon {
+    font-size: 1.25rem;
+  }
+
+  .section-title {
+    font-size: 1.125rem;
+  }
+
+  .telegram-link-btn {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-main {
+    padding: 0.75rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.125rem;
+  }
+}

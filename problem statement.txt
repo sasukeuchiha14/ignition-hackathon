@@ -1,0 +1,100 @@
+Hackathon Problem Statement: Rider
+Telemetry Challenge 
+Overview 
+Participants must build a wearable telemetry system that attaches to a rider’s helmet, jacket,
+and/or pants and captures real-time motion and location data. The system must display live
+information on a mobile app and store all readings with timestamps. 
+The app should also detect whether the rider is on a scooter, a motorcycle, or not riding, based
+on posture and motion. All prototypes must be fully demonstrable on the test track during the
+hackathon. 
+ 
+Data to Capture (Minimum Requirement) 
+Teams may use any number of sensors of their choosing, but their system must at least
+measure and record the following: 
+● Acceleration (3-axis): Detect motion, braking, lean, and body orientation.
+● Deceleration (derived from acceleration): Detect stops or harsh braking.
+● Speed: From GPS or IMU integration; used to validate ride segments.
+● GPS Position (latitude, longitude, timestamp): For track matching, ride path, and
+scoring.
+● Timestamped Data Storage (mandatory): All sensor data and GPS points must be
+stored locally on the mobile app for evaluation.
+ 
+ 
+ 
+ 
+ 
+Test Procedure 
+Each prototype will be tested using the following sequence: 
+Start → Walk → Bike/Scooter → Walk → Scooter/Bike → Walk → End 
+● The helmet, jacket, and pants used for the test will be displayed before the hackathon
+begins. 
+● Teams must design their mounts using only these items.
+● The preset track will be shared with all teams in advance.
+● Prototypes must function through the entire test without losing data, power, or
+attachment.
+ 
+ 
+Evaluation Criteria 
+Category 
+Description 
+Sensor Stability 
+Sensors stay attached and functional throughout the entire test. 
+Mounting Quality 
+Secure attachment that leaves no stains, marks, or residue on the
+displayed gear. 
+GPS Data Volume More GPS points captured results in a higher score. 
+GPS Accuracy 
+Lower average deviation from the reference track results in a higher
+score. 
+Vehicle Type
+Detection
+Correct identification of scooter, motorcycle, or walking. 
+Bill of Materials(BoM) Lower hardware cost results in a higher score. 
+System Weight 
+Lighter assembly results in a higher score. 
+Battery Endurance Must last for both rides and the idle time between. 
+App UX/UI 
+Clear, intuitive display of live data and map. 
+Data Storage 
+All data (sensor and GPS) must be stored locally with timestamps
+for verification. 
+Demonstratability Prototype must perform live during the test without post-processing
+or external tools. 
+Innovation Challenge Most creative idea built on top of the core requirements that can be
+demonstrated live. 
+ 
+Innovation Challenge 
+Teams are encouraged to go beyond the mandatory requirements and add an innovative feature
+that enhances rider experience, safety, data analysis, or usability, as long as it can be
+demonstrated live during the final test. 
+Examples include, but are not limited to: 
+● Additional insights derived from motion or GPS data.
+● Visual, audio, or haptic feedback to the rider.
+● Smart data visualization, gamification, or scoring mechanisms.
+● Compact or modular mounting designs.
+● Energy optimization or intelligent sensor activation logic.
+ 
+Innovation will be judged on: 
+● Originality: Novel or unique idea or approach.
+● Relevance: Builds meaningfully on the base system.
+● Demonstrability: Clearly shown during the test or demo session. 
+ 
+Constraints and Expectations 
+● Only the displayed helmet, jacket, and pants may be used for mounting sensors.
+● All mounts must be non-permanent and leave no stains or damage.
+● The system must run on a single battery charge for both rides.
+● All data must remain local to the app (no cloud upload).
+● The setup must be safe, compact, and easily removable.
+ 
+ 
+ 
+End Goal 
+By the end of the hackathon, each team must demonstrate: 
+1. A working prototype attached to the provided riding gear.
+2. A live app display on the app showing:
+○ Real-time acceleration, deceleration, speed, and GPS map.
+○ Correctly detected riding state (scooter, motorcycle, walking).
+3. A stored data log in the app containing all readings with timestamps.
+4. A brief explanation of the design, cost, accuracy, and any innovative feature
+implemented. 
+ 

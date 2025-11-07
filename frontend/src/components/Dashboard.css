@@ -1,0 +1,139 @@
+.dashboard {
+  width: 100%;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.dashboard-card {
+  background: rgba(20, 25, 45, 0.6);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-icon {
+  font-size: 1.5rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 6px;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1rem;
+  color: #e5e7eb;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.connected-dot {
+  color: #10b981;
+  font-size: 1.5rem;
+}
+
+/* Activity Card Special Styling */
+.activity-card .card-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.activity-badge {
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .dashboard-card {
+    padding: 0.875rem;
+  }
+
+  .card-icon {
+    font-size: 1.25rem;
+  }
+
+  .card-title {
+    font-size: 0.875rem;
+  }
+
+  .stat-label,
+  .stat-value {
+    font-size: 0.875rem;
+  }
+
+  .activity-badge {
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-grid {
+    gap: 0.5rem;
+  }
+
+  .dashboard-card {
+    padding: 0.75rem;
+  }
+}
