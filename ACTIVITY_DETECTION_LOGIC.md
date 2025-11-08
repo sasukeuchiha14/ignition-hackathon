@@ -7,55 +7,98 @@ The system uses dual ESP32 sensors (leg + chest) to accurately detect rider acti
 
 ## Detection Algorithms
 
-### 1. **Walking Detection**
-**Speed Range:** 1-15 km/h  
-**Key Indicators:**
-- High leg gyroscope variance (> 0.3 rad/s)
-- Stepping pattern: leg moving forward/backward while chest remains relatively stable
-- Gyro magnitude indicates periodic leg movement
-
-**Logic:**
-```python
-if 1 <= speed <= 15 and leg_gyro_magnitude > 0.3:
-    return 'WALKING'
-```
-
-### 2. **Scooter Detection**
-**Speed Range:** > 15 km/h  
-**Posture:** Upright (angle difference < 15°)
-
-**Key Indicators:**
-- More upright riding position
-- Smaller posture difference between chest and leg
-- Chest and leg sensors nearly parallel
-
-**Logic:**
-```python
-if speed > 15 and angle_diff < 15:
-    return 'SCOOTER'
-```
-
-### 3. **Motorcycle Detection**
-**Speed Range:** > 15 km/h  
-**Posture:** Forward lean (angle difference > 15°)
-
-**Key Indicators:**
-- Forward-leaning riding position
-- Larger posture difference between chest and leg
-- More aggressive riding stance
-
-**Logic:**
-```python
-if speed > 15 and angle_diff >= 15:
-    return 'MOTORCYCLE'
-```
-
-### 4. **Stationary Detection**
-**Speed Range:** < 0.5 km/h
+### 1. **Stationary Detection**
+**Speed Range:** < 1 km/h
 
 **Key Indicators:**
 - Near-zero GPS speed
 - Minimal movement on both sensors
+
+**Logic:**
+```python
+if speed < 1:
+    return 'STATIONARY'
+```
+
+### 2. **Walking Detection**
+**Speed Range:** 1-15 km/h  
+**Primary Indicator:** Speed in walking range
+
+**Key Indicators:**
+- Speed matches typical walking pace (1-15 km/h)
+- Optional: High leg gyroscope variance (> 0.2 rad/s) confirms stepping
+- Default classification for this speed range
+
+**Logic:**
+```python
+if 1 <= speed <= 15:
+    if leg_gyro_magnitude > 0.2:
+        return 'WALKING'  # Confirmed by stepping pattern
+    else:
+        return 'WALKING'  # Default in this speed range
+```
+
+**Why This Works:**
+- Walking speeds are naturally 1-15 km/h
+- Even without strong gyro signal, speed range is diagnostic
+- No "UNKNOWN" state for this common activity
+
+### 3. **Scooter Detection**
+**Speed Range:** > 15 km/h  
+**Posture:** Upright (angle difference < 20°)
+
+**Key Indicators:**
+- Vehicle speed (above walking pace)
+- More upright riding position
+- Chest and leg sensors nearly parallel
+
+**Logic:**
+```python
+if speed > 15 and angle_diff < 20:
+    return 'SCOOTER'
+```
+
+### 4. **Motorcycle Detection**
+**Speed Range:** > 15 km/h  
+**Posture:** Forward lean (angle difference ≥ 20°)
+
+**Key Indicators:**
+- Vehicle speed (above walking pace)
+- Forward-leaning riding position
+- Larger posture difference between chest and leg
+- More aggressive/sporty riding stance
+
+**Logic:**
+```python
+if speed > 15 and angle_diff >= 20:
+    return 'MOTORCYCLE'
+```
+
+---
+
+## Updated Detection Strategy
+
+### **Speed-First Approach**
+The new logic prioritizes speed ranges because GPS speed is the most reliable indicator:
+
+1. **< 1 km/h** → STATIONARY (not moving)
+2. **1-15 km/h** → WALKING (human speed range)
+3. **> 15 km/h** → SCOOTER or MOTORCYCLE (vehicle speed)
+   - Differentiated by posture angle
+   - < 20° = SCOOTER (upright)
+   - ≥ 20° = MOTORCYCLE (forward lean)
+
+### **Why No UNKNOWN?**
+- Every speed range has a logical default
+- Walking speed (1-15 km/h) always returns WALKING
+- Gyroscope confirms but isn't required
+- More user-friendly than showing UNKNOWN
+
+### **Gyroscope Role**
+- **Confirmation, not requirement**
+- High gyro magnitude (> 0.2 rad/s) confirms stepping pattern
+- Missing gyro data doesn't prevent classification
+- Acts as secondary validation
 
 ---
 
@@ -172,19 +215,30 @@ React Frontend (/api/live-data)
 ## Testing Scenarios
 
 ### Walking Test
-- Walk at 2-5 km/h
-- Leg sensor should show periodic gyro spikes
-- Activity should show "WALKING"
+- Walk at 2-10 km/h
+- **Expected:** Activity shows "WALKING"
+- **Works even if:** Gyro signal is weak or sensors are loose
+- **Primary indicator:** Speed in 1-15 km/h range
 
 ### Scooter Test
-- Ride at 20-30 km/h in upright position
-- Angle difference should be < 15°
-- Activity should show "SCOOTER"
+- Ride at 20-40 km/h in upright position
+- Angle difference should be < 20°
+- **Expected:** Activity shows "SCOOTER"
 
 ### Motorcycle Test
 - Ride at 20+ km/h in forward-leaning position
-- Angle difference should be > 15°
-- Activity should show "MOTORCYCLE"
+- Angle difference should be ≥ 20°
+- **Expected:** Activity shows "MOTORCYCLE"
+
+### Stationary Test
+- Stand still or GPS shows < 1 km/h
+- **Expected:** Activity shows "STATIONARY"
+
+### Edge Cases Handled
+- ✅ GPS speed is 5 km/h but gyro is zero → Still shows WALKING
+- ✅ Sensors are loose or have noise → Speed range determines activity
+- ✅ No more UNKNOWN state for normal activities
+- ✅ Null/undefined speed values default to 0
 
 ### Harsh Brake Test
 - Quick deceleration

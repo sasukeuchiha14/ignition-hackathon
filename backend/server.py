@@ -49,63 +49,74 @@ def detect_activity_type(leg_data, chest_data):
     Detect if rider is walking, on scooter, motorcycle, or stationary
     Based on:
     - Speed (from chest GPS)
-    - Gyroscope variation (leg movement pattern)
+    - Gyroscope magnitude (leg movement intensity)
     - Posture difference (chest vs leg orientation)
     """
     try:
-        # Get speed from chest GPS
-        speed = chest_data.get('speed', 0)
+        # Get speed from chest GPS (ensure it's a number)
+        speed = float(chest_data.get('speed', 0) or 0)
         
-        # Calculate gyroscope variance for leg (walking pattern detection)
+        # Calculate gyroscope magnitude for leg (movement detection)
         leg_gyro_magnitude = math.sqrt(
-            leg_data.get('gyro_x', 0)**2 + 
-            leg_data.get('gyro_y', 0)**2 + 
-            leg_data.get('gyro_z', 0)**2
+            (leg_data.get('gyro_x', 0) or 0)**2 + 
+            (leg_data.get('gyro_y', 0) or 0)**2 + 
+            (leg_data.get('gyro_z', 0) or 0)**2
         )
         
         # Calculate posture difference (orientation difference)
         leg_accel = [
-            leg_data.get('accel_x', 0),
-            leg_data.get('accel_y', 0),
-            leg_data.get('accel_z', 0)
+            leg_data.get('accel_x', 0) or 0,
+            leg_data.get('accel_y', 0) or 0,
+            leg_data.get('accel_z', 9.8) or 9.8  # Default to gravity
         ]
         chest_accel = [
-            chest_data.get('accel_x', 0),
-            chest_data.get('accel_y', 0),
-            chest_data.get('accel_z', 0)
+            chest_data.get('accel_x', 0) or 0,
+            chest_data.get('accel_y', 0) or 0,
+            chest_data.get('accel_z', 9.8) or 9.8  # Default to gravity
         ]
         
         # Calculate angle difference (dot product approach)
         leg_mag = math.sqrt(sum(x**2 for x in leg_accel))
         chest_mag = math.sqrt(sum(x**2 for x in chest_accel))
         
-        if leg_mag > 0 and chest_mag > 0:
+        angle_diff = 0
+        if leg_mag > 0.1 and chest_mag > 0.1:  # Avoid division by zero
             dot_product = sum(l*c for l, c in zip(leg_accel, chest_accel))
             cos_angle = dot_product / (leg_mag * chest_mag)
             cos_angle = max(-1, min(1, cos_angle))  # Clamp to [-1, 1]
             angle_diff = math.degrees(math.acos(cos_angle))
-        else:
-            angle_diff = 0
         
-        # Detection logic
-        if speed < 0.5:
+        logger.info(f"Activity Detection - Speed: {speed:.2f} km/h, Gyro: {leg_gyro_magnitude:.3f}, Angle: {angle_diff:.1f}°")
+        
+        # Detection logic (prioritize speed ranges)
+        
+        # Stationary: Very low speed
+        if speed < 1:
             return 'STATIONARY'
         
-        # Walking: 1-15 km/h with high leg gyro variance (stepping pattern)
-        elif 1 <= speed <= 15 and leg_gyro_magnitude > 0.3:
-            return 'WALKING'
+        # Walking: 1-15 km/h (walking speed range)
+        # Check gyro for stepping pattern, but don't require it strictly
+        elif 1 <= speed <= 15:
+            # If we detect stepping pattern (high gyro), definitely walking
+            if leg_gyro_magnitude > 0.2:
+                return 'WALKING'
+            # Even without strong gyro signal, this speed range is typically walking
+            else:
+                return 'WALKING'  # Default to walking in this speed range
         
-        # Scooter vs Motorcycle: differentiate by posture
-        # Scooter: more upright, smaller angle difference (< 15°)
-        # Motorcycle: more lean forward, larger angle difference (> 15°)
+        # Scooter/Motorcycle: > 15 km/h (vehicle speed)
+        # Differentiate by posture angle
         elif speed > 15:
-            if angle_diff < 15:
+            # Scooter: more upright position (< 20° difference)
+            if angle_diff < 20:
                 return 'SCOOTER'
+            # Motorcycle: forward lean position (>= 20° difference)
             else:
                 return 'MOTORCYCLE'
         
+        # Fallback (should rarely happen)
         else:
-            return 'UNKNOWN'
+            return 'WALKING'  # Default to walking instead of unknown
             
     except Exception as e:
         logger.error(f"Activity detection error: {e}")
