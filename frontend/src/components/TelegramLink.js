@@ -66,11 +66,15 @@ const TelegramLink = ({ isOpen, onClose }) => {
           <div className="instructions">
             <h3>How to link your Telegram:</h3>
             <ol>
-              <li>Open Telegram and search for your bot</li>
-              <li>Send <code>/register</code> command to the bot</li>
-              <li>Copy the 6-digit PIN you receive</li>
+              <li>Open Telegram app on your phone</li>
+              <li>Search for <strong>@YourBotUsername</strong> (your bot name)</li>
+              <li>Start a chat and send <code>/register</code> command</li>
+              <li>Bot will reply with a 6-digit PIN</li>
               <li>Enter the PIN below within 10 minutes</li>
             </ol>
+            <div className="info-box">
+              <strong>⏰ Note:</strong> The PIN expires after 10 minutes for security.
+            </div>
           </div>
 
           <form onSubmit={handleSubmit}>

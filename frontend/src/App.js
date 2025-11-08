@@ -129,9 +129,10 @@ function App() {
       </main>
 
       {/* Telegram Link Modal */}
-      {showTelegramLink && (
-        <TelegramLink onClose={() => setShowTelegramLink(false)} />
-      )}
+      <TelegramLink 
+        isOpen={showTelegramLink}
+        onClose={() => setShowTelegramLink(false)} 
+      />
     </div>
   );
 }

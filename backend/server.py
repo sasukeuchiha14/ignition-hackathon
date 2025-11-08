@@ -47,34 +47,63 @@ def calculate_acceleration_magnitude(accel_x, accel_y, accel_z):
 def detect_activity_type(leg_data, chest_data):
     """
     Detect if rider is walking, on scooter, motorcycle, or stationary
-    Based on posture difference between leg and chest sensors
-    GPS data comes from chest sensor
+    Based on:
+    - Speed (from chest GPS)
+    - Gyroscope variation (leg movement pattern)
+    - Posture difference (chest vs leg orientation)
     """
     try:
-        # Calculate posture difference (angle difference between sensors)
-        leg_magnitude = calculate_acceleration_magnitude(
+        # Get speed from chest GPS
+        speed = chest_data.get('speed', 0)
+        
+        # Calculate gyroscope variance for leg (walking pattern detection)
+        leg_gyro_magnitude = math.sqrt(
+            leg_data.get('gyro_x', 0)**2 + 
+            leg_data.get('gyro_y', 0)**2 + 
+            leg_data.get('gyro_z', 0)**2
+        )
+        
+        # Calculate posture difference (orientation difference)
+        leg_accel = [
             leg_data.get('accel_x', 0),
             leg_data.get('accel_y', 0),
             leg_data.get('accel_z', 0)
-        )
-        chest_magnitude = calculate_acceleration_magnitude(
+        ]
+        chest_accel = [
             chest_data.get('accel_x', 0),
             chest_data.get('accel_y', 0),
             chest_data.get('accel_z', 0)
-        )
+        ]
         
-        posture_diff = abs(leg_magnitude - chest_magnitude)
-        speed = chest_data.get('speed', 0)  # GPS is on chest now
+        # Calculate angle difference (dot product approach)
+        leg_mag = math.sqrt(sum(x**2 for x in leg_accel))
+        chest_mag = math.sqrt(sum(x**2 for x in chest_accel))
+        
+        if leg_mag > 0 and chest_mag > 0:
+            dot_product = sum(l*c for l, c in zip(leg_accel, chest_accel))
+            cos_angle = dot_product / (leg_mag * chest_mag)
+            cos_angle = max(-1, min(1, cos_angle))  # Clamp to [-1, 1]
+            angle_diff = math.degrees(math.acos(cos_angle))
+        else:
+            angle_diff = 0
         
         # Detection logic
         if speed < 0.5:
             return 'STATIONARY'
-        elif speed < 5 and posture_diff > 2:
+        
+        # Walking: 1-15 km/h with high leg gyro variance (stepping pattern)
+        elif 1 <= speed <= 15 and leg_gyro_magnitude > 0.3:
             return 'WALKING'
-        elif speed < 40 and posture_diff < 3:
-            return 'SCOOTER'
-        elif speed >= 40:
-            return 'MOTORCYCLE'
+        
+        # Scooter vs Motorcycle: differentiate by posture
+        # Scooter: more upright, smaller angle difference (< 15°)
+        # Motorcycle: more lean forward, larger angle difference (> 15°)
+        elif speed > 15:
+            if angle_diff < 15:
+                return 'SCOOTER'
+            else:
+                return 'MOTORCYCLE'
+        
         else:
             return 'UNKNOWN'
             
@@ -404,27 +433,28 @@ def get_live_data():
 def verify_telegram_pin():
     """
     Verify PIN code for Telegram linking
-    Expected JSON: {"pin": "123456", "telegram_chat_id": 123456789}
+    Expected JSON: {"pin": "123456"}
     """
     try:
         data = request.get_json()
         pin = data.get('pin')
-        chat_id = data.get('telegram_chat_id')
         
-        if not pin or not chat_id:
-            return jsonify({"error": "PIN and chat_id required"}), 400
+        if not pin:
+            return jsonify({"success": False, "message": "PIN is required"}), 400
         
         # Check if PIN exists and not expired
         pin_result = supabase.table("telegram_pins")\
             .select("*")\
             .eq("pin_code", pin)\
-            .eq("telegram_chat_id", chat_id)\
             .eq("is_used", False)\
             .gt("expires_at", datetime.now().isoformat())\
             .execute()
         
         if not pin_result.data:
-            return jsonify({"error": "Invalid or expired PIN"}), 404
+            return jsonify({"success": False, "message": "Invalid or expired PIN"}), 404
+        
+        pin_data = pin_result.data[0]
+        chat_id = pin_data['telegram_chat_id']
         
         # Mark PIN as used
         supabase.table("telegram_pins")\
@@ -438,14 +468,16 @@ def verify_telegram_pin():
             .eq("telegram_chat_id", chat_id)\
             .execute()
         
+        logger.info(f"Telegram account linked: chat_id={chat_id}, pin={pin}")
+        
         return jsonify({
-            "status": "success",
+            "success": True,
             "message": "Telegram account linked successfully"
         }), 200
         
     except Exception as e:
         logger.error(f"Error verifying PIN: {e}")
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"success": False, "message": "Internal server error"}), 500
 
 
 @app.route('/api/events/recent', methods=['GET'])

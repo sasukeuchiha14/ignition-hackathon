@@ -33,23 +33,44 @@ const SensorModel = ({ position, rotation, color, label }) => {
 };
 
 const GyroscopeViz = ({ legData, chestData }) => {
-  const legRotation = {
-    x: legData?.gyro_x || 0,
-    y: legData?.gyro_y || 0,
-    z: legData?.gyro_z || 0
+  // Calculate orientation from accelerometer data (Euler angles)
+  const calculateOrientation = (accel_x, accel_y, accel_z) => {
+    // Normalize accelerometer values
+    const magnitude = Math.sqrt(accel_x**2 + accel_y**2 + accel_z**2);
+    if (magnitude === 0) return { x: 0, y: 0, z: 0 };
+    
+    const ax = accel_x / magnitude;
+    const ay = accel_y / magnitude;
+    const az = accel_z / magnitude;
+    
+    // Calculate pitch (rotation around X-axis)
+    const pitch = Math.atan2(ay, Math.sqrt(ax**2 + az**2)) * (180 / Math.PI);
+    
+    // Calculate roll (rotation around Y-axis)
+    const roll = Math.atan2(-ax, az) * (180 / Math.PI);
+    
+    // Yaw (rotation around Z-axis) - use gyro Z for indication
+    const yaw = 0; // Can't determine absolute yaw from accelerometer alone
+    
+    return { x: pitch, y: roll, z: yaw };
   };
 
-  const chestRotation = {
-    x: chestData?.gyro_x || 0,
-    y: chestData?.gyro_y || 0,
-    z: chestData?.gyro_z || 0
-  };
+  const legRotation = calculateOrientation(
+    legData?.accel_x || 0,
+    legData?.accel_y || 0,
+    legData?.accel_z || 9.8
+  );
 
-  // Calculate posture difference
+  const chestRotation = calculateOrientation(
+    chestData?.accel_x || 0,
+    chestData?.accel_y || 0,
+    chestData?.accel_z || 9.8
+  );
+
+  // Calculate posture difference (angle between orientations)
   const postureDiff = Math.sqrt(
-    Math.pow((chestData?.gyro_x || 0) - (legData?.gyro_x || 0), 2) +
-    Math.pow((chestData?.gyro_y || 0) - (legData?.gyro_y || 0), 2) +
-    Math.pow((chestData?.gyro_z || 0) - (legData?.gyro_z || 0), 2)
+    Math.pow(chestRotation.x - legRotation.x, 2) +
+    Math.pow(chestRotation.y - legRotation.y, 2)
   );
 
   return (
@@ -80,16 +101,16 @@ const GyroscopeViz = ({ legData, chestData }) => {
           <h4 className="gyro-subtitle">🦵 Leg Sensor</h4>
           <div className="gyro-values">
             <div className="gyro-value">
-              <span className="axis-label">X:</span>
-              <span className="axis-value">{(legData?.gyro_x || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Pitch:</span>
+              <span className="axis-value">{legRotation.x.toFixed(1)}°</span>
             </div>
             <div className="gyro-value">
-              <span className="axis-label">Y:</span>
-              <span className="axis-value">{(legData?.gyro_y || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Roll:</span>
+              <span className="axis-value">{legRotation.y.toFixed(1)}°</span>
             </div>
             <div className="gyro-value">
-              <span className="axis-label">Z:</span>
-              <span className="axis-value">{(legData?.gyro_z || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Gyro Z:</span>
+              <span className="axis-value">{(legData?.gyro_z || 0).toFixed(2)} rad/s</span>
             </div>
           </div>
         </div>
@@ -98,16 +119,16 @@ const GyroscopeViz = ({ legData, chestData }) => {
           <h4 className="gyro-subtitle">🫀 Chest Sensor</h4>
           <div className="gyro-values">
             <div className="gyro-value">
-              <span className="axis-label">X:</span>
-              <span className="axis-value">{(chestData?.gyro_x || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Pitch:</span>
+              <span className="axis-value">{chestRotation.x.toFixed(1)}°</span>
             </div>
             <div className="gyro-value">
-              <span className="axis-label">Y:</span>
-              <span className="axis-value">{(chestData?.gyro_y || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Roll:</span>
+              <span className="axis-value">{chestRotation.y.toFixed(1)}°</span>
             </div>
             <div className="gyro-value">
-              <span className="axis-label">Z:</span>
-              <span className="axis-value">{(chestData?.gyro_z || 0).toFixed(2)}°/s</span>
+              <span className="axis-label">Gyro Z:</span>
+              <span className="axis-value">{(chestData?.gyro_z || 0).toFixed(2)} rad/s</span>
             </div>
           </div>
         </div>

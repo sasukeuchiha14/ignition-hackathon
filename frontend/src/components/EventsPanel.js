@@ -14,6 +14,10 @@ const EventsPanel = ({ events }) => {
 
   const getEventIcon = (eventType) => {
     const icons = {
+      HARSH_BRAKE: '🛑',
+      HARSH_ACCEL: '🚀',
+      FALL_DETECTED: '⚠️',
+      ACCIDENT_ALERT: '🚨',
       harsh_brake: '🛑',
       harsh_acceleration: '🚀',
       fall_detected: '⚠️',

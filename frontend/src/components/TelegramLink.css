@@ -105,6 +105,24 @@
   font-weight: 600;
 }
 
+.instructions strong {
+  color: #667eea;
+}
+
+.info-box {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.info-box strong {
+  color: #3b82f6;
+}
+
 .form-group {
   margin-bottom: 1.5rem;
 }
